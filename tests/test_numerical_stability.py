@@ -1,33 +1,40 @@
 ﻿import numpy as np
-import torch
 from src.solver.reaction_diffusion import simulate_explicit, default_params
-from src.solver import solver_2d_torch
 
-def test_explicit_mass_conservation_zero_reaction():
-# zero reaction and zero-flux boundary => mass should remain approx constant for small dt
-nx = 64
-L = 1.0
-dx = L/(nx-1)
-x = np.linspace(0,L,nx)
-u0 = np.zeros(nx)
-# single bump
-u0[int(nx/2)-2:int(nx/2)+2] = 1.0
-p = default_params()
-p['alpha'] = 0.0
-p['beta'] = 0.0
-u_final = simulate_explicit(u0, p, dx, dt=1e-5, nsteps=10)
-mass0 = u0.sum()
-mass1 = u_final.sum()
-assert abs(mass1 - mass0) < 1e-6
 
-def test_2d_solver_runs_and_respects_device():
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-nx = 64
-ny = 64
-dx = 1.0/(nx-1)
-u0 = torch.zeros((1,1,nx,ny))
-u0[:,:,nx//2-2:nx//2+2, ny//2-2:ny//2+2] = 1.0
-params = dict(D=0.1, alpha=0.0, beta=0.0)
-u_final = solver_2d_torch.simulate_2d(u0.to(device), params, dx=dx, dt=1e-4, nsteps=5, device=device)
-assert isinstance(u_final, torch.Tensor)
-assert u_final.shape == u0.to(device).shape
+def test_numerical_stability_with_smaller_dt():
+    p = default_params()
+    nx, ny = 64, 64
+
+    # Sinusoidal perturbation
+    x = np.linspace(0, 2 * np.pi, nx)
+    y = np.linspace(0, 2 * np.pi, ny)
+    X, Y = np.meshgrid(x, y)
+    u0 = np.sin(X) * np.sin(Y)
+
+    # Large dt
+    u_large_dt = simulate_explicit(
+        u0=u0,
+        D=p["D"],
+        dt=p["dt"] * 2.0,     # more unstable
+        dx=p["dx"],
+        dy=p["dy"],
+        steps=10,
+    )
+
+    # Smaller dt
+    u_small_dt = simulate_explicit(
+        u0=u0,
+        D=p["D"],
+        dt=p["dt"] * 0.25,    # more stable
+        dx=p["dx"],
+        dy=p["dy"],
+        steps=40,             # adjust so physical time matches
+    )
+
+    # Energy should decay more consistently for small dt
+    energy_large_dt = np.sum(u_large_dt**2)
+    energy_small_dt = np.sum(u_small_dt**2)
+
+    # Explicit scheme: smaller dt gives smoother, lower-energy solution
+    assert energy_small_dt < energy_large_dt

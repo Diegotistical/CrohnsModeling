@@ -1,2 +1,0 @@
-﻿
-Solver package for CrohnsModeling
