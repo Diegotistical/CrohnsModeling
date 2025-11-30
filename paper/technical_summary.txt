@@ -1,5 +1,0 @@
-﻿CrohnsModeling — Technical Summary
-Author: [Your Name]
-Date: 2025-11-24
-
-(Replace this with a 1-2 page PDF summary describing your PDE, numerical scheme, inference method, and limitations.)
