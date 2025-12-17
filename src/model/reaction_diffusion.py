@@ -1,6 +1,7 @@
 """
 Gray-Scott Reaction-Diffusion Physics.
 """
+
 import numpy as np
 from dataclasses import dataclass
 from typing import Tuple, Literal, Optional
@@ -10,24 +11,28 @@ from src.model.operators import compute_laplacian
 
 BoundaryType = Literal["periodic", "neumann"]
 
+
 @dataclass(frozen=True)
 class RDParameters:
     """Immutable physics parameters."""
-    Du: float = 0.16    # Diffusion rate of U
-    Dv: float = 0.08    # Diffusion rate of V
-    F: float = 0.0545   # Feed rate
-    k: float = 0.062    # Kill rate
+
+    Du: float = 0.16  # Diffusion rate of U
+    Dv: float = 0.08  # Diffusion rate of V
+    F: float = 0.0545  # Feed rate
+    k: float = 0.062  # Kill rate
+
 
 class ReactionDiffusionModel:
     """
     Manages the state (U, V) and computes rates of change.
     """
+
     def __init__(
         self,
         grid: Grid2D,
         params: RDParameters,
         bc: BoundaryType = "periodic",
-        seed: Optional[int] = None
+        seed: Optional[int] = None,
     ):
         self.grid = grid
         self.params = params
@@ -40,7 +45,7 @@ class ReactionDiffusionModel:
 
         # Initial Perturbation (Center Square)
         self._initialize_perturbation()
-        
+
         # Add minimal noise to break symmetry
         self.U += self.rng.normal(0, 0.01, grid.shape)
         self.V += self.rng.normal(0, 0.01, grid.shape)
@@ -88,5 +93,5 @@ class ReactionDiffusionModel:
         # Laplacian calculation
         lu = compute_laplacian(U, self.grid.dx, self.bc)
         lv = compute_laplacian(V, self.grid.dx, self.bc)
-        
+
         return self.params.Du * lu, self.params.Dv * lv

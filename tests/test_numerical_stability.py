@@ -16,7 +16,7 @@ def test_numerical_stability_with_smaller_dt():
     u_large_dt = simulate_explicit(
         u0=u0,
         D=p["D"],
-        dt=p["dt"] * 2.0,     # more unstable
+        dt=p["dt"] * 2.0,  # more unstable
         dx=p["dx"],
         dy=p["dy"],
         steps=10,
@@ -26,10 +26,10 @@ def test_numerical_stability_with_smaller_dt():
     u_small_dt = simulate_explicit(
         u0=u0,
         D=p["D"],
-        dt=p["dt"] * 0.25,    # more stable
+        dt=p["dt"] * 0.25,  # more stable
         dx=p["dx"],
         dy=p["dy"],
-        steps=40,             # adjust so physical time matches
+        steps=40,  # adjust so physical time matches
     )
 
     # Energy should decay more consistently for small dt
