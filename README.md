@@ -1,4 +1,4 @@
-# Crohnsodeling
+# CrohnsModeling
 
 **CrohnsModeling** is a computational modeling project focused on simulating chronic intestinal inflammation dynamics observed in Crohn’s disease using mechanistic mathematics, stochastic processes, and numerical simulation. The goal is to build a modular, research-grade framework that captures flare–remission cycles, spatial inflammation propagation, and (optionally) inflammation-linked tumor initiation.
 
